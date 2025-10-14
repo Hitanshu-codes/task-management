@@ -5,6 +5,18 @@ import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// Get all users for task assignment (all authenticated users)
+router.get('/list', authenticateToken, async (req, res) => {
+    try {
+        const users = await User.find({})
+            .select('-password')
+            .sort({ email: 1 });
+        res.json({ users });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 // Get all users (admin only)
 router.get('/', authenticateToken, requireAdmin, async (req, res) => {
     try {

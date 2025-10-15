@@ -133,3 +133,4 @@ export const Register = () => {
         </div>
     );
 };
+

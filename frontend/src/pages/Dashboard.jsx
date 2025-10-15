@@ -20,6 +20,7 @@ export const Dashboard = () => {
     });
 
     const { register, handleSubmit, reset, setValue } = useForm();
+    const [selectedFiles, setSelectedFiles] = useState([]);
 
     useEffect(() => {
         fetchTasks();
@@ -48,17 +49,24 @@ export const Dashboard = () => {
 
     const onSubmit = async (data) => {
         try {
+            // Add selected files to the data
+            const taskData = {
+                ...data,
+                attachments: selectedFiles
+            };
+
             if (selectedTask) {
-                await taskAPI.updateTask(selectedTask._id, data);
+                await taskAPI.updateTask(selectedTask._id, taskData);
                 toast.success('Task updated successfully');
                 setShowEditModal(false);
             } else {
-                await taskAPI.createTask(data);
+                await taskAPI.createTask(taskData);
                 toast.success('Task created successfully');
                 setShowCreateModal(false);
             }
             reset();
             setSelectedTask(null);
+            setSelectedFiles([]);
             fetchTasks();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to save task');
@@ -73,7 +81,13 @@ export const Dashboard = () => {
         setValue('assignedTo', task.assignedTo._id);
         setValue('priority', task.priority);
         setValue('status', task.status);
+        setSelectedFiles([]); // Clear files for edit
         setShowEditModal(true);
+    };
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        setSelectedFiles(files);
     };
 
     const handleDelete = async (taskId) => {
@@ -188,12 +202,22 @@ export const Dashboard = () => {
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Attachments (PDF only)</label>
                             <input
-                                {...register('attachments')}
                                 type="file"
                                 multiple
                                 accept=".pdf"
+                                onChange={handleFileChange}
                                 className="input"
                             />
+                            {selectedFiles.length > 0 && (
+                                <div className="mt-2">
+                                    <p className="text-sm text-gray-600">Selected files:</p>
+                                    <ul className="text-xs text-gray-500">
+                                        {selectedFiles.map((file, index) => (
+                                            <li key={index}>{file.name}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex space-x-3">
@@ -352,6 +376,7 @@ export const Dashboard = () => {
                 onClose={() => {
                     setShowCreateModal(false);
                     reset();
+                    setSelectedFiles([]);
                 }}
                 title="Create New Task"
             />
@@ -362,6 +387,7 @@ export const Dashboard = () => {
                     setShowEditModal(false);
                     setSelectedTask(null);
                     reset();
+                    setSelectedFiles([]);
                 }}
                 title="Edit Task"
             />

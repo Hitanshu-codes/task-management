@@ -23,8 +23,10 @@ services:
       - mongo
     volumes:
       - ./backend:/app
+      - ./backend/uploads:/app/uploads
       - /app/node_modules
     command: npm run dev
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
@@ -39,6 +41,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     command: npm run dev
+    restart: unless-stopped
 
 volumes:
   mongo_data:

@@ -10,6 +10,7 @@ import connectDB from './config/database.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import taskRoutes from './routes/tasks.js';
+import swaggerDocument from './docs/swaggerDoc.js';
 
 dotenv.config();
 
@@ -31,66 +32,6 @@ app.use(morgan('dev'));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Swagger documentation
-const swaggerDocument = {
-    openapi: '3.0.0',
-    info: {
-        title: 'Task Management API',
-        version: '0.1.0',
-        description: 'A simple task management API with authentication and file uploads'
-    },
-    servers: [
-        { url: 'http://localhost:5000', description: 'Development server' }
-    ],
-    paths: {
-        '/api/health': {
-            get: {
-                summary: 'Health check',
-                responses: { '200': { description: 'OK' } }
-            }
-        },
-        '/api/auth/register': {
-            post: {
-                summary: 'Register new user',
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    email: { type: 'string', format: 'email' },
-                                    password: { type: 'string', minLength: 6 }
-                                },
-                                required: ['email', 'password']
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        '/api/auth/login': {
-            post: {
-                summary: 'Login user',
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    email: { type: 'string', format: 'email' },
-                                    password: { type: 'string' }
-                                },
-                                required: ['email', 'password']
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-};
-
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
